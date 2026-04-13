@@ -220,6 +220,15 @@ class AppTheme {
         selectedItemColor: token.primary,
         unselectedItemColor: token.textSecondary,
       ),
+      progressIndicatorTheme: ProgressIndicatorThemeData(
+        color: token.primary,
+        circularTrackColor: token.divider,
+      ),
+      dividerTheme: DividerThemeData(
+        color: token.divider,
+        thickness: 1,
+        space: 0,
+      ),
     );
   }
 
@@ -279,6 +288,15 @@ class AppTheme {
         backgroundColor: token.surface,
         selectedItemColor: token.primary,
         unselectedItemColor: token.textSecondary,
+      ),
+      progressIndicatorTheme: ProgressIndicatorThemeData(
+        color: token.primary,
+        circularTrackColor: token.divider,
+      ),
+      dividerTheme: DividerThemeData(
+        color: token.divider,
+        thickness: 1,
+        space: 0,
       ),
     );
   }

@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mood_whisper/app/shell/main_shell.dart';
 import 'package:mood_whisper/features/onboarding/presentation/screens/onboarding_screen.dart';
@@ -18,7 +19,13 @@ class AppRouter {
     routes: [
       GoRoute(
         path: onboarding,
-        builder: (context, state) => const OnboardingScreen(),
+        pageBuilder: (context, state) => CustomTransitionPage(
+          key: state.pageKey,
+          child: const OnboardingScreen(),
+          transitionsBuilder: (context, animation, secondaryAnimation, child) {
+            return FadeTransition(opacity: animation, child: child);
+          },
+        ),
       ),
       StatefulShellRoute.indexedStack(
         builder: (context, state, navigationShell) =>
@@ -28,7 +35,10 @@ class AppRouter {
             routes: [
               GoRoute(
                 path: record,
-                builder: (context, state) => const RecordScreen(),
+                pageBuilder: (context, state) => _buildFadePage(
+                  state: state,
+                  child: const RecordScreen(),
+                ),
               ),
             ],
           ),
@@ -36,7 +46,10 @@ class AppRouter {
             routes: [
               GoRoute(
                 path: dashboard,
-                builder: (context, state) => const HomeScreen(),
+                pageBuilder: (context, state) => _buildFadePage(
+                  state: state,
+                  child: const HomeScreen(),
+                ),
               ),
             ],
           ),
@@ -44,7 +57,10 @@ class AppRouter {
             routes: [
               GoRoute(
                 path: history,
-                builder: (context, state) => const ListScreen(),
+                pageBuilder: (context, state) => _buildFadePage(
+                  state: state,
+                  child: const ListScreen(),
+                ),
               ),
             ],
           ),
@@ -52,7 +68,10 @@ class AppRouter {
             routes: [
               GoRoute(
                 path: profile,
-                builder: (context, state) => const ProfileScreen(),
+                pageBuilder: (context, state) => _buildFadePage(
+                  state: state,
+                  child: const ProfileScreen(),
+                ),
               ),
             ],
           ),
@@ -60,4 +79,24 @@ class AppRouter {
       ),
     ],
   );
+
+  static CustomTransitionPage _buildFadePage({
+    required GoRouterState state,
+    required Widget child,
+  }) {
+    return CustomTransitionPage(
+      key: state.pageKey,
+      child: child,
+      transitionsBuilder: (context, animation, secondaryAnimation, child) {
+        return FadeTransition(
+          opacity: CurvedAnimation(
+            parent: animation,
+            curve: Curves.easeInOut,
+            reverseCurve: Curves.easeInOut,
+          ),
+          child: child,
+        );
+      },
+    );
+  }
 }

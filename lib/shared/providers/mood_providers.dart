@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mood_whisper/core/constants/mood_types.dart';
 import 'package:mood_whisper/core/database/database_helper.dart';
@@ -133,3 +134,59 @@ final allRecordsProvider = FutureProvider<List<MoodRecord>>((ref) async {
   final repository = ref.watch(moodRecordRepositoryProvider);
   return repository.findAll();
 });
+
+// Profile statistics providers
+
+final totalRecordsCountProvider = FutureProvider<int>((ref) async {
+  final repository = ref.watch(moodRecordRepositoryProvider);
+  final records = await repository.findAll();
+  return records.length;
+});
+
+final longestStreakProvider = FutureProvider<int>((ref) async {
+  final repository = ref.watch(moodRecordRepositoryProvider);
+  final records = await repository.findAll();
+  if (records.isEmpty) return 0;
+  return _calculateLongestStreak(records);
+});
+
+final mostFrequentMoodProvider = FutureProvider<MoodType?>((ref) async {
+  final repository = ref.watch(moodRecordRepositoryProvider);
+  final records = await repository.findAll();
+  if (records.isEmpty) return null;
+  final moodCounts = <MoodType, int>{};
+  for (final record in records) {
+    moodCounts[record.moodType] = (moodCounts[record.moodType] ?? 0) + 1;
+  }
+  return moodCounts.entries.reduce((a, b) => a.value > b.value ? a : b).key;
+});
+
+int _calculateLongestStreak(List<MoodRecord> records) {
+  if (records.isEmpty) return 0;
+
+  final sortedDates = records.map((r) => DateTime(
+    r.recordedAt.year,
+    r.recordedAt.month,
+    r.recordedAt.day,
+  )).toSet().toList()..sort();
+
+  int longestStreak = 1;
+  int currentStreak = 1;
+
+  for (int i = 1; i < sortedDates.length; i++) {
+    final diff = sortedDates[i].difference(sortedDates[i - 1]).inDays;
+    if (diff == 1) {
+      currentStreak++;
+      if (currentStreak > longestStreak) {
+        longestStreak = currentStreak;
+      }
+    } else {
+      currentStreak = 1;
+    }
+  }
+
+  return longestStreak;
+}
+
+// Theme mode provider
+final themeModeProvider = StateProvider<ThemeMode>((ref) => ThemeMode.system);
