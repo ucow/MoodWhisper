@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mood_whisper/core/theme/typography.dart';
 
 /// 情绪等级枚举
 enum MoodLevel {
@@ -186,19 +187,9 @@ class AppTheme {
         elevation: 2,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       ),
-      textTheme: TextTheme(
-        headlineLarge: TextStyle(color: token.textPrimary),
-        headlineMedium: TextStyle(color: token.textPrimary),
-        headlineSmall: TextStyle(color: token.textPrimary),
-        titleLarge: TextStyle(color: token.textPrimary),
-        titleMedium: TextStyle(color: token.textPrimary),
-        titleSmall: TextStyle(color: token.textPrimary),
-        bodyLarge: TextStyle(color: token.textPrimary),
-        bodyMedium: TextStyle(color: token.textSecondary),
-        bodySmall: TextStyle(color: token.textSecondary),
-        labelLarge: TextStyle(color: token.textPrimary),
-        labelMedium: TextStyle(color: token.textSecondary),
-        labelSmall: TextStyle(color: token.textDisabled),
+      textTheme: buildTextTheme(
+        primaryColor: token.textPrimary,
+        secondaryColor: token.textSecondary,
       ),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
@@ -256,19 +247,9 @@ class AppTheme {
         elevation: 2,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       ),
-      textTheme: TextTheme(
-        headlineLarge: TextStyle(color: token.textPrimary),
-        headlineMedium: TextStyle(color: token.textPrimary),
-        headlineSmall: TextStyle(color: token.textPrimary),
-        titleLarge: TextStyle(color: token.textPrimary),
-        titleMedium: TextStyle(color: token.textPrimary),
-        titleSmall: TextStyle(color: token.textPrimary),
-        bodyLarge: TextStyle(color: token.textPrimary),
-        bodyMedium: TextStyle(color: token.textSecondary),
-        bodySmall: TextStyle(color: token.textSecondary),
-        labelLarge: TextStyle(color: token.textPrimary),
-        labelMedium: TextStyle(color: token.textSecondary),
-        labelSmall: TextStyle(color: token.textDisabled),
+      textTheme: buildTextTheme(
+        primaryColor: token.textPrimary,
+        secondaryColor: token.textSecondary,
       ),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
