@@ -1,10 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mood_whisper/app/router/app_router.dart';
+import 'package:mood_whisper/core/services/sentry_service.dart';
 import 'package:mood_whisper/core/theme/theme.dart';
 import 'package:mood_whisper/shared/providers/mood_providers.dart';
 
-void main() {
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  await SentryService.initialize();
+
   runApp(const ProviderScope(child: MoodWhisperApp()));
 }
 

@@ -1,3 +1,4 @@
+import 'package:mood_whisper/core/database/migrations/migration_v1to2.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 
@@ -5,7 +6,7 @@ class DatabaseHelper {
   DatabaseHelper._();
   static final DatabaseHelper instance = DatabaseHelper._();
 
-  static const int _dbVersion = 1;
+  static const int _dbVersion = 2;
   static const String _dbName = 'mood_whisper.db';
 
   Database? _db;
@@ -55,7 +56,9 @@ class DatabaseHelper {
   }
 
   Future<void> _onUpgrade(Database db, int oldVersion, int newVersion) async {
-    // 迁移链入口：按版本号顺序执行
-    // if (oldVersion < 2) { await _migrateV1ToV2(db); }
+    // Migration chain: execute in version order
+    if (oldVersion < 2) {
+      await migrateV1ToV2(db);
+    }
   }
 }
