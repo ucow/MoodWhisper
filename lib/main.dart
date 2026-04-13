@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mood_whisper/app/router/app_router.dart';
 import 'package:mood_whisper/core/theme/theme.dart';
 
 void main() {
-  runApp(const MoodWhisperApp());
+  runApp(const ProviderScope(child: MoodWhisperApp()));
 }
 
 class MoodWhisperApp extends StatelessWidget {

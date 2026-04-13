@@ -1,0 +1,114 @@
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:mood_whisper/core/constants/mood_types.dart';
+import 'package:mood_whisper/core/database/database_helper.dart';
+import 'package:mood_whisper/data/dao/mood_record_dao.dart';
+import 'package:mood_whisper/data/models/mood_record.dart';
+import 'package:mood_whisper/data/repository/mood_record_repository.dart';
+import 'package:uuid/uuid.dart';
+
+final databaseHelperProvider = Provider<DatabaseHelper>((ref) {
+  return DatabaseHelper.instance;
+});
+
+final moodRecordDaoProvider = Provider<MoodRecordDao>((ref) {
+  final dbHelper = ref.watch(databaseHelperProvider);
+  return MoodRecordDao(dbHelper);
+});
+
+final moodRecordRepositoryProvider = Provider<MoodRecordRepository>((ref) {
+  final dao = ref.watch(moodRecordDaoProvider);
+  return MoodRecordRepository(dao);
+});
+
+class RecordFormState {
+  final MoodType? moodType;
+  final int intensity;
+  final String note;
+  final bool isSaving;
+  final String? error;
+
+  const RecordFormState({
+    this.moodType,
+    this.intensity = 3,
+    this.note = '',
+    this.isSaving = false,
+    this.error,
+  });
+
+  RecordFormState copyWith({
+    MoodType? moodType,
+    int? intensity,
+    String? note,
+    bool? isSaving,
+    String? error,
+  }) {
+    return RecordFormState(
+      moodType: moodType ?? this.moodType,
+      intensity: intensity ?? this.intensity,
+      note: note ?? this.note,
+      isSaving: isSaving ?? this.isSaving,
+      error: error,
+    );
+  }
+}
+
+class RecordFormNotifier extends StateNotifier<RecordFormState> {
+  final MoodRecordRepository _repository;
+  final Uuid _uuid = const Uuid();
+
+  RecordFormNotifier(this._repository) : super(const RecordFormState());
+
+  void selectMood(MoodType type) {
+    state = state.copyWith(moodType: type);
+  }
+
+  void setIntensity(int intensity) {
+    state = state.copyWith(intensity: intensity.clamp(1, 5));
+  }
+
+  void setNote(String note) {
+    state = state.copyWith(note: note);
+  }
+
+  Future<bool> save() async {
+    if (state.moodType == null) {
+      state = state.copyWith(error: '请选择情绪');
+      return false;
+    }
+
+    state = state.copyWith(isSaving: true, error: null);
+
+    try {
+      final record = MoodRecord(
+        uuid: _uuid.v4(),
+        moodType: state.moodType!,
+        intensity: state.intensity,
+        note: state.note.isEmpty ? null : state.note,
+        recordedAt: DateTime.now(),
+        createdAt: DateTime.now(),
+      );
+
+      await _repository.save(record);
+      state = const RecordFormState();
+      return true;
+    } catch (e) {
+      state = state.copyWith(isSaving: false, error: e.toString());
+      return false;
+    }
+  }
+
+  void reset() {
+    state = const RecordFormState();
+  }
+}
+
+final recordFormProvider =
+    StateNotifierProvider<RecordFormNotifier, RecordFormState>((ref) {
+  final repository = ref.watch(moodRecordRepositoryProvider);
+  return RecordFormNotifier(repository);
+});
+
+final recentRecordsProvider = FutureProvider<List<MoodRecord>>((ref) async {
+  final repository = ref.watch(moodRecordRepositoryProvider);
+  return repository.findAll(limit: 10);
+});
