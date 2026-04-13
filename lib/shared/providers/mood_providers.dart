@@ -190,3 +190,17 @@ int _calculateLongestStreak(List<MoodRecord> records) {
 
 // Theme mode provider
 final themeModeProvider = StateProvider<ThemeMode>((ref) => ThemeMode.system);
+
+// View mode provider for home screen charts (week/month)
+enum ChartViewMode { week, month }
+
+final chartViewModeProvider = StateProvider<ChartViewMode>((ref) => ChartViewMode.week);
+
+// Month stats provider (last 30 days)
+final monthStatsProvider = FutureProvider<List<MoodRecord>>((ref) async {
+  final repository = ref.watch(moodRecordRepositoryProvider);
+  final now = DateTime.now();
+  final startOfMonth = DateTime(now.year, now.month, now.day).subtract(const Duration(days: 29));
+  final endOfToday = DateTime(now.year, now.month, now.day).add(const Duration(days: 1));
+  return repository.findByDateRange(startOfMonth, endOfToday);
+});
