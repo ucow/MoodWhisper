@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mood_whisper/core/constants/mood_types.dart';
 import 'package:mood_whisper/core/database/database_helper.dart';
+import 'package:mood_whisper/core/services/data_export_service.dart';
 import 'package:mood_whisper/data/dao/mood_record_dao.dart';
 import 'package:mood_whisper/data/models/mood_record.dart';
 import 'package:mood_whisper/data/repository/mood_record_repository.dart';
@@ -203,4 +204,87 @@ final monthStatsProvider = FutureProvider<List<MoodRecord>>((ref) async {
   final startOfMonth = DateTime(now.year, now.month, now.day).subtract(const Duration(days: 29));
   final endOfToday = DateTime(now.year, now.month, now.day).add(const Duration(days: 1));
   return repository.findByDateRange(startOfMonth, endOfToday);
+});
+
+// Export service provider
+final dataExportServiceProvider = Provider<DataExportService>((ref) {
+  return DataExportService();
+});
+
+// Export state
+class ExportState {
+  final bool isExporting;
+  final String? exportedFilePath;
+  final String? error;
+
+  const ExportState({
+    this.isExporting = false,
+    this.exportedFilePath,
+    this.error,
+  });
+
+  ExportState copyWith({
+    bool? isExporting,
+    String? exportedFilePath,
+    String? error,
+  }) {
+    return ExportState(
+      isExporting: isExporting ?? this.isExporting,
+      exportedFilePath: exportedFilePath,
+      error: error,
+    );
+  }
+}
+
+class ExportNotifier extends StateNotifier<ExportState> {
+  final DataExportService _exportService;
+  final MoodRecordRepository _repository;
+
+  ExportNotifier(this._exportService, this._repository) : super(const ExportState());
+
+  Future<void> exportData(ExportFormat format) async {
+    state = state.copyWith(isExporting: true, error: null, exportedFilePath: null);
+
+    try {
+      final records = await _repository.findAll();
+
+      if (records.isEmpty) {
+        state = state.copyWith(
+          isExporting: false,
+          error: '没有可导出的数据',
+        );
+        return;
+      }
+
+      String filePath;
+      if (format == ExportFormat.csv) {
+        filePath = await _exportService.exportToCsv(records);
+      } else {
+        filePath = await _exportService.exportToJson(records);
+      }
+
+      state = state.copyWith(
+        isExporting: false,
+        exportedFilePath: filePath,
+      );
+
+      await _exportService.shareFile(filePath);
+    } catch (e) {
+      state = state.copyWith(
+        isExporting: false,
+        error: '导出失败: $e',
+      );
+    }
+  }
+
+  void reset() {
+    state = const ExportState();
+  }
+}
+
+final exportNotifierProvider =
+    StateNotifierProvider<ExportNotifier, ExportState>((ref) {
+  final exportService = ref.watch(dataExportServiceProvider);
+  final repository = ref.watch(moodRecordRepositoryProvider);
+  return ExportNotifier(exportService, repository);
 });

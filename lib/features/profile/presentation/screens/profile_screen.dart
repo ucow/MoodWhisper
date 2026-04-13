@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mood_whisper/core/constants/constants.dart';
 import 'package:mood_whisper/core/constants/mood_types.dart';
+import 'package:mood_whisper/core/services/data_export_service.dart';
 import 'package:mood_whisper/core/theme/fonts.dart';
 import 'package:mood_whisper/core/theme/theme.dart';
 import 'package:mood_whisper/shared/providers/mood_providers.dart';
@@ -46,7 +47,7 @@ class ProfileScreen extends ConsumerWidget {
                 onThemeChanged: (mode) {
                   ref.read(themeModeProvider.notifier).state = mode;
                 },
-                onExportData: () => _showExportDialog(context),
+                onExportData: () => _showExportDialog(context, ref),
                 onAbout: () => _showAboutDialog(context),
               ),
               const SizedBox(height: AppSpacing.lg),
@@ -67,30 +68,62 @@ class ProfileScreen extends ConsumerWidget {
     );
   }
 
-  void _showExportDialog(BuildContext context) {
+  void _showExportDialog(BuildContext context, WidgetRef ref) {
     final colorToken = context.colorToken;
-    showDialog(
+    showModalBottomSheet(
       context: context,
-      builder: (context) => AlertDialog(
-        title: Text(
-          '数据导出',
-          style: TextToken.h3.toStyle(color: colorToken.textPrimary),
-        ),
-        content: Text(
-          '数据导出功能正在开发中...',
-          style: TextToken.body1.toStyle(color: colorToken.textSecondary),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: Text(
-              '确定',
-              style: TextToken.body1.toStyle(color: colorToken.primary),
-            ),
-          ),
-        ],
+      backgroundColor: colorToken.card,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(AppRadius.lg)),
+      ),
+      builder: (context) => _ExportBottomSheet(
+        colorToken: colorToken,
+        onExport: (format) => _handleExport(context, ref, format),
       ),
     );
+  }
+
+  void _handleExport(BuildContext context, WidgetRef ref, ExportFormat format) async {
+    Navigator.of(context).pop();
+
+    final exportState = ref.read(exportNotifierProvider.notifier);
+    await exportState.exportData(format);
+
+    final state = ref.read(exportNotifierProvider);
+    if (context.mounted) {
+      if (state.error != null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              state.error!,
+              style: TextToken.body2.toStyle(color: Colors.white),
+            ),
+            backgroundColor: context.colorToken.error,
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(AppRadius.sm),
+            ),
+          ),
+        );
+      } else if (state.exportedFilePath != null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              '导出成功: ${state.exportedFilePath}',
+              style: TextToken.body2.toStyle(color: Colors.white),
+            ),
+            backgroundColor: context.colorToken.success,
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(AppRadius.sm),
+            ),
+            duration: const Duration(seconds: 4),
+          ),
+        );
+      }
+    }
+
+    ref.read(exportNotifierProvider.notifier).reset();
   }
 
   void _showAboutDialog(BuildContext context) {
@@ -512,6 +545,95 @@ class _ExitButton extends StatelessWidget {
           style: TextToken.body1.toStyle(color: colorToken.error),
         ),
       ),
+    );
+  }
+}
+
+class _ExportBottomSheet extends StatelessWidget {
+  final ColorToken colorToken;
+  final Function(ExportFormat) onExport;
+
+  const _ExportBottomSheet({
+    required this.colorToken,
+    required this.onExport,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return SafeArea(
+      child: Padding(
+        padding: const EdgeInsets.all(AppSpacing.lg),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              '数据导出',
+              style: TextToken.h3.toStyle(color: colorToken.textPrimary),
+            ),
+            const SizedBox(height: AppSpacing.sm),
+            Text(
+              '选择导出格式',
+              style: TextToken.body2.toStyle(color: colorToken.textSecondary),
+            ),
+            const SizedBox(height: AppSpacing.lg),
+            _ExportOptionTile(
+              icon: Icons.table_chart_outlined,
+              title: 'CSV 格式',
+              subtitle: '适合在 Excel 中打开',
+              onTap: () => onExport(ExportFormat.csv),
+            ),
+            const SizedBox(height: AppSpacing.sm),
+            _ExportOptionTile(
+              icon: Icons.data_object,
+              title: 'JSON 格式',
+              subtitle: '适合程序解析',
+              onTap: () => onExport(ExportFormat.json),
+            ),
+            const SizedBox(height: AppSpacing.lg),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _ExportOptionTile extends StatelessWidget {
+  final IconData icon;
+  final String title;
+  final String subtitle;
+  final VoidCallback onTap;
+
+  const _ExportOptionTile({
+    required this.icon,
+    required this.title,
+    required this.subtitle,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final colorToken = context.colorToken;
+
+    return ListTile(
+      leading: Icon(icon, color: colorToken.primary),
+      title: Text(
+        title,
+        style: TextToken.body1.toStyle(color: colorToken.textPrimary),
+      ),
+      subtitle: Text(
+        subtitle,
+        style: TextToken.caption.toStyle(color: colorToken.textSecondary),
+      ),
+      trailing: Icon(
+        Icons.chevron_right,
+        color: colorToken.textDisabled,
+      ),
+      onTap: onTap,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(AppRadius.md),
+      ),
+      tileColor: colorToken.surface,
     );
   }
 }
