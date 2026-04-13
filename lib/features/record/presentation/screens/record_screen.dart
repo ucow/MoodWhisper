@@ -121,9 +121,10 @@ class _RecordScreenState extends ConsumerState<RecordScreen> {
                         )
                       : Text(
                           '保存记录',
-                          style: TextToken.body1.toStyle(
-                            color: Colors.white,
+                          style: const TextStyle(
+                            fontSize: 16,
                             fontWeight: FontWeight.w600,
+                            color: Colors.white,
                           ),
                         ),
                 ),
@@ -227,9 +228,10 @@ class _MoodChip extends StatelessWidget {
             const SizedBox(width: AppSpacing.xs),
             Text(
               mood.label,
-              style: TextToken.body2.toStyle(
-                color: isSelected ? moodColor : colorToken.textPrimary,
+              style: TextStyle(
+                fontSize: 14,
                 fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
+                color: isSelected ? moodColor : colorToken.textPrimary,
               ),
             ),
           ],

@@ -24,14 +24,14 @@ class MainShell extends StatelessWidget {
             label: '记录',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.list_alt_outlined),
-            activeIcon: Icon(Icons.list_alt),
-            label: '列表',
+            icon: Icon(Icons.dashboard_outlined),
+            activeIcon: Icon(Icons.dashboard),
+            label: '仪表盘',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.bar_chart_outlined),
-            activeIcon: Icon(Icons.bar_chart),
-            label: '统计',
+            icon: Icon(Icons.history_outlined),
+            activeIcon: Icon(Icons.history),
+            label: '历史',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.person_outline),

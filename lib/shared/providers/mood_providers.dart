@@ -112,3 +112,24 @@ final recentRecordsProvider = FutureProvider<List<MoodRecord>>((ref) async {
   final repository = ref.watch(moodRecordRepositoryProvider);
   return repository.findAll(limit: 10);
 });
+
+final todayRecordsProvider = FutureProvider<List<MoodRecord>>((ref) async {
+  final repository = ref.watch(moodRecordRepositoryProvider);
+  final now = DateTime.now();
+  final startOfDay = DateTime(now.year, now.month, now.day);
+  final endOfDay = startOfDay.add(const Duration(days: 1));
+  return repository.findByDateRange(startOfDay, endOfDay);
+});
+
+final weekStatsProvider = FutureProvider<List<MoodRecord>>((ref) async {
+  final repository = ref.watch(moodRecordRepositoryProvider);
+  final now = DateTime.now();
+  final startOfWeek = DateTime(now.year, now.month, now.day).subtract(const Duration(days: 6));
+  final endOfToday = DateTime(now.year, now.month, now.day).add(const Duration(days: 1));
+  return repository.findByDateRange(startOfWeek, endOfToday);
+});
+
+final allRecordsProvider = FutureProvider<List<MoodRecord>>((ref) async {
+  final repository = ref.watch(moodRecordRepositoryProvider);
+  return repository.findAll();
+});
