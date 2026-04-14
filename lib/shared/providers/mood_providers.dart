@@ -6,6 +6,7 @@ import 'package:mood_whisper/core/services/data_export_service.dart';
 import 'package:mood_whisper/data/dao/mood_record_dao.dart';
 import 'package:mood_whisper/data/models/mood_record.dart';
 import 'package:mood_whisper/data/repository/mood_record_repository.dart';
+import 'package:mood_whisper/data/repository/settings_repository.dart';
 import 'package:uuid/uuid.dart';
 
 final databaseHelperProvider = Provider<DatabaseHelper>((ref) {
@@ -22,12 +23,18 @@ final moodRecordRepositoryProvider = Provider<MoodRecordRepository>((ref) {
   return MoodRecordRepository(dao);
 });
 
+final settingsRepositoryProvider = Provider<SettingsRepository>((ref) {
+  final dbHelper = ref.watch(databaseHelperProvider);
+  return SettingsRepository(dbHelper);
+});
+
 class RecordFormState {
   final MoodType? moodType;
   final int intensity;
   final String note;
   final bool isSaving;
   final String? error;
+  final DateTime? recordedAt;
 
   const RecordFormState({
     this.moodType,
@@ -35,6 +42,7 @@ class RecordFormState {
     this.note = '',
     this.isSaving = false,
     this.error,
+    this.recordedAt,
   });
 
   RecordFormState copyWith({
@@ -43,6 +51,7 @@ class RecordFormState {
     String? note,
     bool? isSaving,
     String? error,
+    DateTime? recordedAt,
   }) {
     return RecordFormState(
       moodType: moodType ?? this.moodType,
@@ -50,6 +59,7 @@ class RecordFormState {
       note: note ?? this.note,
       isSaving: isSaving ?? this.isSaving,
       error: error,
+      recordedAt: recordedAt ?? this.recordedAt,
     );
   }
 }
@@ -72,6 +82,10 @@ class RecordFormNotifier extends StateNotifier<RecordFormState> {
     state = state.copyWith(note: note);
   }
 
+  void setRecordedAt(DateTime dateTime) {
+    state = state.copyWith(recordedAt: dateTime);
+  }
+
   Future<bool> save() async {
     if (state.moodType == null) {
       state = state.copyWith(error: '请选择情绪');
@@ -86,7 +100,7 @@ class RecordFormNotifier extends StateNotifier<RecordFormState> {
         moodType: state.moodType!,
         intensity: state.intensity,
         note: state.note.isEmpty ? null : state.note,
-        recordedAt: DateTime.now(),
+        recordedAt: state.recordedAt ?? DateTime.now(),
         createdAt: DateTime.now(),
       );
 

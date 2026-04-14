@@ -9,6 +9,7 @@ import 'package:mood_whisper/core/theme/fonts.dart';
 import 'package:mood_whisper/core/theme/theme.dart';
 import 'package:mood_whisper/data/models/mood_record.dart';
 import 'package:mood_whisper/shared/providers/mood_providers.dart';
+import 'package:mood_whisper/features/home/presentation/widgets/recent_records_preview.dart';
 
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
@@ -56,6 +57,8 @@ class HomeScreen extends ConsumerWidget {
                 const SizedBox(height: AppSpacing.md),
                 _MoodDistributionCard(),
                 const SizedBox(height: AppSpacing.xl),
+                const RecentRecordsPreview(),
+                const SizedBox(height: AppSpacing.md),
                 _QuickRecordButton(
                   onTap: () => context.go(AppRouter.record),
                 ),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:mood_whisper/core/database/database_helper.dart';
 import 'package:mood_whisper/core/logger/app_logger.dart';
 import 'package:mood_whisper/data/models/onboarding_state.dart';
+import 'package:sqflite/sqflite.dart';
 
 class SettingsRepository {
   final DatabaseHelper _dbHelper;
@@ -13,6 +14,7 @@ class SettingsRepository {
   static const String _keyOnboardingCompleted = 'onboarding_completed';
   static const String _keyOnboardingStep = 'onboarding_step';
   static const String _keyOnboardingCompletedAt = 'onboarding_completed_at';
+  static const String _keyParticleAnimationDegraded = 'particle_animation_degraded';
 
   /// Gets the current theme mode
   Future<ThemeMode> getThemeMode() async {
@@ -188,6 +190,39 @@ class SettingsRepository {
       'app_settings',
       where: 'key = ?',
       whereArgs: [_keyOnboardingCompletedAt],
+    );
+  }
+
+  /// Gets whether particle animation is degraded
+  Future<bool> isParticleAnimationDegraded() async {
+    AppLogger.logDbOperation('GET', 'app_settings', id: _keyParticleAnimationDegraded);
+    final db = await _dbHelper.database;
+    final maps = await db.query(
+      'app_settings',
+      where: 'key = ?',
+      whereArgs: [_keyParticleAnimationDegraded],
+    );
+
+    if (maps.isEmpty) {
+      return false;
+    }
+
+    return maps.first['value'] == 'true';
+  }
+
+  /// Sets particle animation degradation flag
+  Future<void> setParticleAnimationDegraded(bool degraded) async {
+    AppLogger.logDbOperation('SET', 'app_settings', id: _keyParticleAnimationDegraded);
+    final db = await _dbHelper.database;
+
+    await db.insert(
+      'app_settings',
+      {
+        'key': _keyParticleAnimationDegraded,
+        'value': degraded.toString(),
+        'updated_at': DateTime.now().millisecondsSinceEpoch,
+      },
+      conflictAlgorithm: ConflictAlgorithm.replace,
     );
   }
 }
