@@ -1,29 +1,19 @@
-# MoodWhisper PRD
+# MoodWhisper - 情绪记录 App
 
-> 情绪记录 App 产品需求文档（PRD）v2.5
+> 简洁、隐私优先的个人情绪记录与分析应用
 
-## 文档信息
+## 项目文档
 
-- **项目名称**：MoodWhisper（情绪记录 App）
-- **文档版本**：v2.5
-- **创建日期**：2026-03-22
-- **更新日期**：2026-03-28
-- **产品负责人**：朋朋
-- **目标平台**：移动端（iOS + Android）
+- **PRD**: https://my.feishu.cn/wiki/DZybwGYv2iXi3gkzoGWc30ULnJd
+- **技术栈**: Flutter + Riverpod + sqflite + fl_chart + go_router
+- **目标平台**: iOS 14+ / Android 7+
 
-## 产品愿景
+## 开发团队
 
-一个简洁、隐私优先的个人情绪记录与分析应用，帮助用户追踪情绪变化，发现情绪模式，提升自我认知。
-
-## 核心价值
-
-- **快速记录**：3秒完成一次情绪记录
-- **数据可控**：完全本地存储，用户拥有数据所有权
-- **渐进深入**：从简单统计开始，逐步支持深度分析
-
-## 文档地址
-
-飞书文档：https://my.feishu.cn/wiki/DZybwGYv2iXi3gkzoGWc30ULnJd
+- **产品经理**: 朋朋 (Clawra AI 协助)
+- **UI/UX**: Aira
+- **架构设计**: Astra
+- **开发**: Nyx
 
 ## License
 
