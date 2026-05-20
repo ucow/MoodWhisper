@@ -1,0 +1,101 @@
+{
+  "version": 1,
+  "updatedAt": "2026-05-19T09:48:38.741Z",
+  "entries": {
+    "memory:memory/daily/2026-04-13.md:1:18": {
+      "key": "memory:memory/daily/2026-04-13.md:1:18",
+      "path": "memory/daily/2026-04-13.md",
+      "startLine": 1,
+      "endLine": 18,
+      "source": "memory",
+      "snippet": "## 🕐 23:00~24:00 Summary ### MoodWhisper 开发（主任务） - **P0 全部完成**：0.1~0.16（骨架/路由/DB/主题/常量/字体/AppIcon/启动屏/Provider架构/日志/Sentry/文案/迁移规范/签名） - **P1 核心数据层完成**：1.1~1.7（数据模型/MoodDao CRUD+统计查询/MoodRepository业务逻辑/SettingsRepository/19个单元测试全绿/UUID迁移/单例约束） - **总提交数**：9个（含 P0 收尾 + P1 完整数据层） - **工具链**：Flutter 3.24.5 已安装，通过 `claude -p --permission-mode bypassPermissions` 调用 Claude Code + Superpowers - **最后状态**：Claude Code session 被 user aborted，P1 已完成并推送 ### 关键决策 - Flutter SDK 通过 zip 下载安装到 C:\\flutter（3.24.5 stable） - 开发模式确认：必须用 Claude Code (`claude -p`)，禁止直接 write 工具写代码 - Git proxy: http://127.0.0.1:7897 ### 问题 - GitHub push 偶发 SSL/TLS 错误（代理不稳定） - ACP runtime 持续不可用，fallback 到 claude -p 模式",
+      "recallCount": 2,
+      "dailyCount": 0,
+      "groundedCount": 0,
+      "totalScore": 2,
+      "maxScore": 1,
+      "firstRecalledAt": "2026-05-19T08:00:35.211Z",
+      "lastRecalledAt": "2026-05-19T09:48:38.741Z",
+      "queryHashes": [
+        "e56b81559f58",
+        "2260a84cd719"
+      ],
+      "recallDays": [
+        "2026-05-19"
+      ],
+      "conceptTags": [
+        "0.1",
+        "0.16",
+        "1.1",
+        "1.7",
+        "数据模型/mooddao",
+        "3.24.5",
+        "permission-mode",
+        "127.0.0.1"
+      ]
+    },
+    "memory:memory/daily/2026-04-12.md:1:27": {
+      "key": "memory:memory/daily/2026-04-12.md:1:27",
+      "path": "memory/daily/2026-04-12.md",
+      "startLine": 1,
+      "endLine": 27,
+      "source": "memory",
+      "snippet": "# 2026-04-12 Daily Memory ## 🕐 09:22 Summary - Task: 主人要求通过 acpx 调用 Claude Code，查询当前使用的模型 - Problem: ACP runtime 不可用，回退到直接 acpx exec 驱动 - Decision: 使用 `acpx claude exec` 直接执行一次性查询 - Tech: acpx 0.3.0, Claude Code 实际运行模型为 MiniMax-M2.7（非 Anthropic 原生模型） ## 🕐 12:13 Summary - Problem: git push 持续失败，SSL/TLS 握手错误，本地已有多个未推送 commit - Decision: 记录状态，等待主人修复网络/代理问题 ## 🕐 16:09 Summary - Task: 主人要求重新开发 MoodWhisper 项目（Flutter 情绪记录 App），从零开始 - Decision: 工作目录改为 C:\\Users\\GPP\\workspace\\MoodWhisper\\，直接写文件（本机无 Flutter SDK） - Tech: Flutter + Riverpod + sqflite + fl_chart + go_router，目标 iOS 14+ / Android 7+ - Note: 仓库 https://github.com/ucow/MoodWhisper.git，按 P0~P7 阶段推进 ## 🕐 17:34 Summary - Task: 主人催促继续 P0",
+      "recallCount": 2,
+      "dailyCount": 0,
+      "groundedCount": 0,
+      "totalScore": 2,
+      "maxScore": 1,
+      "firstRecalledAt": "2026-05-19T08:00:35.211Z",
+      "lastRecalledAt": "2026-05-19T09:48:38.741Z",
+      "queryHashes": [
+        "e56b81559f58",
+        "2260a84cd719"
+      ],
+      "recallDays": [
+        "2026-05-19"
+      ],
+      "conceptTags": [
+        "router",
+        "网络",
+        "0.3.0",
+        "minimax-m2.7",
+        "ssl/tls",
+        "等待主人修复网络/代理问题",
+        "fl-chart",
+        "go-router"
+      ]
+    },
+    "memory:memory/daily/2026-04-18.md:1:25": {
+      "key": "memory:memory/daily/2026-04-18.md:1:25",
+      "path": "memory/daily/2026-04-18.md",
+      "startLine": 1,
+      "endLine": 25,
+      "source": "memory",
+      "snippet": "# 2026-04-18 Daily Memory ## 🕐 23:00 Summary - Task: Flutter SDK 下载与安装（Windows 环境） - Problem: BITS 下载大文件（1.1GB），网络不稳定导致监控脚本中断 - Decision: 使用 Start-BitsTransfer 后台下载，断点续传 - Tech: PowerShell BITS, Flutter SDK windows_x64 stable - Status: 下载进行中 (~60%, 680MB/1.1GB) - Next: 下载完成后解压到 C:\\flutter，配置 PATH，启动 Claude Code 开发 P0 ## 🕐 23:59 Summary - Task: Flutter SDK 下载继续中 - Status: BITS JobState=Transferring, ~60.4% (679MB/1.12GB) - Issue: git push 失败 (TLS connect error)，已 commit 未 push - Action: 需要重试 push 或等待网络恢复 ## 🕐 00:44 Summary - Task: Flutter SDK 安装完成 - Status: - ✅ Flutter 3.29.3 解压到 C:\\flutter，PATH 已配置 - ✅ flutter doctor 通过（Windows/Chrome/VS Code/BuildTools 正常） - ❌ Android SDK 未安装 →",
+      "recallCount": 1,
+      "dailyCount": 0,
+      "groundedCount": 0,
+      "totalScore": 1,
+      "maxScore": 1,
+      "firstRecalledAt": "2026-05-19T08:00:35.211Z",
+      "lastRecalledAt": "2026-05-19T08:00:35.211Z",
+      "queryHashes": [
+        "e56b81559f58"
+      ],
+      "recallDays": [
+        "2026-05-19"
+      ],
+      "conceptTags": [
+        "网络",
+        "1.1gb",
+        "start-bitstransfer",
+        "windows-x64",
+        "680mb/1.1gb",
+        "60.4",
+        "679mb/1.12gb",
+        "3.29.3"
+      ]
+    }
+  }
+}

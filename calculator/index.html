@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Calculator</title>
+<style>
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background: #e8ecf1;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+.calculator {
+  width: 320px;
+  max-width: 100%;
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.10);
+  overflow: hidden;
+}
+
+.display {
+  padding: 32px 24px 16px;
+  background: #1a1d23;
+  color: #ffffff;
+  text-align: right;
+  min-height: 120px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  word-break: break-all;
+}
+
+.display-expression {
+  font-size: 16px;
+  color: #8b8fa3;
+  min-height: 24px;
+  margin-bottom: 8px;
+}
+
+.display-value {
+  font-size: 40px;
+  font-weight: 300;
+  line-height: 1.2;
+}
+
+.buttons {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1px;
+  background: #e0e4e8;
+  padding: 1px;
+}
+
+button {
+  border: none;
+  font-size: 20px;
+  padding: 20px 0;
+  cursor: pointer;
+  background: #ffffff;
+  color: #1a1d23;
+  transition: background 0.15s;
+  font-family: inherit;
+}
+
+button:focus-visible {
+  outline: 2px solid #2563eb;
+  outline-offset: -2px;
+  z-index: 1;
+}
+
+button:hover {
+  background: #f0f2f5;
+}
+
+button:active {
+  background: #dde0e4;
+}
+
+button.operator {
+  background: #f7f8fa;
+  color: #2563eb;
+}
+
+button.operator:hover {
+  background: #eef0f4;
+}
+
+button.equals {
+  background: #2563eb;
+  color: #ffffff;
+}
+
+button.equals:hover {
+  background: #1d4ed8;
+}
+
+button.equals:active {
+  background: #1e40af;
+}
+
+button.clear {
+  color: #dc2626;
+}
+
+button.zero {
+  grid-column: span 2;
+}
+</style>
+</head>
+<body>
+
+<div class="calculator">
+  <div class="display">
+    <div class="display-expression" id="expression" aria-hidden="true"></div>
+    <div class="display-value" id="value" aria-live="polite">0</div>
+  </div>
+  <div class="buttons">
+    <button class="clear" data-action="clear">C</button>
+    <button class="operator" data-action="operator" data-value="÷">÷</button>
+    <button class="operator" data-action="operator" data-value="×">×</button>
+    <button class="operator" data-action="operator" data-value="−">−</button>
+
+    <button data-action="digit" data-value="7">7</button>
+    <button data-action="digit" data-value="8">8</button>
+    <button data-action="digit" data-value="9">9</button>
+    <button class="operator" data-action="operator" data-value="+">+</button>
+
+    <button data-action="digit" data-value="4">4</button>
+    <button data-action="digit" data-value="5">5</button>
+    <button data-action="digit" data-value="6">6</button>
+    <button class="equals" data-action="equals">=</button>
+
+    <button data-action="digit" data-value="1">1</button>
+    <button data-action="digit" data-value="2">2</button>
+    <button data-action="digit" data-value="3">3</button>
+    <button class="equals" data-action="equals">=</button>
+
+    <button class="zero" data-action="digit" data-value="0">0</button>
+    <button data-action="decimal" data-value=".">.</button>
+    <button class="equals" data-action="equals">=</button>
+  </div>
+</div>
+
+<script>
+(function () {
+  var current = '0';
+  var previous = '';
+  var op = '';
+  var shouldReset = false;
+  var expression = '';
+
+  var exprEl = document.getElementById('expression');
+  var valueEl = document.getElementById('value');
+
+  function updateDisplay() {
+    valueEl.textContent = current;
+    exprEl.textContent = expression;
+  }
+
+  function errorState() {
+    return current === 'Error';
+  }
+
+  function clearIfError() {
+    if (errorState()) {
+      current = '0';
+      previous = '';
+      op = '';
+      shouldReset = false;
+      expression = '';
+    }
+  }
+
+  function formatNumber(num) {
+    var n = parseFloat(num);
+    if (isNaN(n)) return '0';
+    if (Number.isInteger(n) && Math.abs(n) < 1e15) return n.toString();
+    var fixed = parseFloat(n.toFixed(10));
+    var s = fixed.toString();
+    return s.length > 14 ? n.toExponential(8) : s;
+  }
+
+  function inputDigit(digit) {
+    clearIfError();
+    if (shouldReset) {
+      current = digit;
+      shouldReset = false;
+    } else {
+      current = current === '0' && digit !== '0' ? digit : current === '0' ? '0' : current + digit;
+    }
+    updateDisplay();
+  }
+
+  function inputDecimal() {
+    clearIfError();
+    if (shouldReset) {
+      current = '0.';
+      shouldReset = false;
+      updateDisplay();
+      return;
+    }
+    if (current.indexOf('.') === -1) {
+      current += '.';
+    }
+    updateDisplay();
+  }
+
+  function inputOperator(nextOp) {
+    clearIfError();
+    if (op && shouldReset) {
+      op = nextOp;
+      var parts = expression.split(' ');
+      parts[parts.length - 1] = displayOp(nextOp);
+      expression = parts.join(' ');
+      updateDisplay();
+      return;
+    }
+    if (previous !== '') {
+      compute();
+    }
+    op = nextOp;
+    previous = current;
+    shouldReset = true;
+    expression = previous + ' ' + displayOp(op);
+    updateDisplay();
+  }
+
+  function compute() {
+    if (!op || shouldReset) return;
+    var prev = parseFloat(previous);
+    var curr = parseFloat(current);
+    var result;
+
+    if (isNaN(prev) || isNaN(curr)) {
+      current = 'Error';
+      previous = '';
+      op = '';
+      shouldReset = true;
+      expression = previous + ' ' + displayOp(op) + ' ' + current + ' =';
+      updateDisplay();
+      return;
+    }
+
+    var displayExpr = previous + ' ' + displayOp(op) + ' ' + current + ' =';
+
+    switch (op) {
+      case '+': result = prev + curr; break;
+      case '-': result = prev - curr; break;
+      case '×': result = prev * curr; break;
+      case '÷':
+        result = curr === 0 ? 'Error' : prev / curr;
+        break;
+      default: return;
+    }
+
+    expression = displayExpr;
+    current = result === 'Error' ? 'Error' : formatNumber(result.toString());
+    previous = '';
+    op = '';
+    shouldReset = true;
+    updateDisplay();
+  }
+
+  function clearAll() {
+    current = '0';
+    previous = '';
+    op = '';
+    shouldReset = false;
+    expression = '';
+    updateDisplay();
+  }
+
+  function deleteLast() {
+    if (errorState()) {
+      clearAll();
+      return;
+    }
+    if (shouldReset) return;
+    if (current.length === 1) {
+      current = '0';
+    } else {
+      current = current.slice(0, -1);
+    }
+    updateDisplay();
+  }
+
+  function displayOp(raw) {
+    switch (raw) {
+      case '+': return '+';
+      case '-': return '−';
+      case '×': return '×';
+      case '÷': return '÷';
+      default: return raw;
+    }
+  }
+
+  document.querySelector('.buttons').addEventListener('click', function (e) {
+    var btn = e.target.closest('button');
+    if (!btn) return;
+    var action = btn.dataset.action;
+    var value = btn.dataset.value;
+
+    switch (action) {
+      case 'digit': inputDigit(value); break;
+      case 'decimal': inputDecimal(); break;
+      case 'operator': inputOperator(value); break;
+      case 'equals': compute(); break;
+      case 'clear': clearAll(); break;
+    }
+  });
+
+  document.addEventListener('keydown', function (e) {
+    if (e.key >= '0' && e.key <= '9') { inputDigit(e.key); return; }
+    switch (e.key) {
+      case '.': inputDecimal(); break;
+      case '+': inputOperator('+'); break;
+      case '-': inputOperator('-'); break;
+      case '*': inputOperator('×'); break;
+      case '/': inputOperator('÷'); e.preventDefault(); break;
+      case 'Enter': case '=': compute(); e.preventDefault(); break;
+      case 'Escape': clearAll(); break;
+      case 'Backspace': deleteLast(); e.preventDefault(); break;
+    }
+  });
+})();
+</script>
+
+</body>
+</html>
